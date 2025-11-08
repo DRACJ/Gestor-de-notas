@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h2>🍉🍎🍇Registro de productos🫛🥬</h2>
+
+    <input type="text" id="nombre" placeholder="ingrese el nombre" />
+    <input type="number" id="valor" placeholder="ingrese el valor" />
+    <select id="categoria">
+      <option value="">-- Seleccion la categoria del producto --</option>
+      <option value="frutas">Frutas 🍎</option>
+      <option value="verduras">Verdura 🫛</option>
+    </select>
+
+    <button onclick="registrarProducto()">Registrar producto🫛🥬</button>
+
+    <p>
+      Filtro de productos🫛🥬🍎
+      <input type="text" id="fitroProducto" oninput="mostrarProductos()" />
+      <button onclick="mostrarPorPrecio()">💵 Mostrar por precio</button>
+    </p>
+
+    <ul id="listaProductos"></ul>
+
+    <p id="mensaje"></p>
+
+    <p id="totalProductos"></p>
+
+    <script>
+      let productos = [];
+
+      function registrarProducto() {
+        let nombre = document.getElementById("nombre").value.trim();
+        let valor = parseFloat(document.getElementById("valor").value.trim());
+        let categoria = document.getElementById("categoria").value.trim();
+
+        if (nombre === "" || isNaN(valor) || valor <= 0 || categoria === "") {
+          alert("ingrese datos validos...");
+          return;
+        }
+
+        let duplicado = productos.some(
+          (p) =>
+            p.nombre.toLowerCase() === nombre.toLowerCase() && p.categoria.toLowerCase() === categoria.toLowerCase()
+        );
+
+        if (duplicado) {
+          alert("☢️ Este producto ya existe en el sistema...");
+          return;
+        }
+
+        productos.push({ nombre, valor, categoria, comprado: false, original: valor });
+
+        document.getElementById("mensaje").innerText = "✅ Producto agregado con exito...";
+        setTimeout(() => {
+          document.getElementById("mensaje").innerText = "";
+        }, 3000);
+
+        document.getElementById("nombre").value = "";
+        document.getElementById("valor").value = "";
+        document.getElementById("categoria").value = "";
+
+        mostrarProductos();
+      }
+
+      function eliminarProducto(i) {
+        productos.splice(i, 1);
+        mostrarProductos();
+      }
+
+      function cambiarEstado(i) {
+        productos[i].comprado = !productos[i].comprado;
+        mostrarProductos();
+      }
+
+      let ivaActivo = false;
+
+      function aumentarPrecios() {
+        for (producto of productos) {
+          producto.valor = ivaActivo ? producto.original : producto.original * 1.1;
+        }
+        ivaActivo = !ivaActivo;
+
+        mostrarProductos();
+      }
+
+      function mostrarProductos() {
+        let lista = document.getElementById("listaProductos");
+        lista.innerHTML = "";
+
+        let filtro = document.getElementById("fitroProducto").value.trim().toLowerCase();
+        let productosFiltrados = filtro
+          ? productos.filter(
+              (p) => p.categoria.toLowerCase().includes(filtro) || p.nombre.toLowerCase().includes(filtro)
+            )
+          : productos;
+
+        for ([i, producto] of productosFiltrados.entries()) {
+          let li = document.createElement("li");
+
+          li.innerHTML = `${producto.comprado ? `<s>${producto.nombre}</s>` : producto.nombre} 
+          💰 valor: 💲${producto.valor} - categoria: 🔖 ${producto.categoria}
+                 <button onclick="aumentarPrecios(${i})">📈 Aumentar precios 10%</button>
+                <button onclick="cambiarEstado(${i})">${producto.comprado ? "🔛 Desmarcar" : "✅ Tachar"}</button>
+                <button onclick="eliminarProducto(${i})">❌ Eliminar</button>`;
+          lista.appendChild(li);
+        }
+
+        document.getElementById("totalProductos").innerText = "total de productos🫛🥬🍎 " + productosFiltrados.length;
+      }
+
+      function mostrarPorPrecio() {
+        productos.sort((a, b) => a.valor - b.valor);
+        mostrarProductos;
+      }
+    </script>
+  </body>
+</html>
